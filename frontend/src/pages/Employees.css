@@ -1,0 +1,80 @@
+.employees-page {
+    padding: 20px;
+}
+
+.employees-page h1 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    animation: slideIn 0.3s ease;
+}
+
+.alert span {
+    font-size: 18px;
+}
+
+.alert-error {
+    background-color: #fee;
+    color: #c33;
+    border-left: 4px solid #c33;
+}
+
+.alert-success {
+    background-color: #efe;
+    color: #3c3;
+    border-left: 4px solid #3c3;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .employees-page h1 {
+        font-size: 24px;
+    }
+}
+
+.dark-mode .employees-page h1 {
+    color: #ffffff !important;
+}
+
+.dark-mode .page-subtitle {
+    color: var(--text-secondary);
+}
+
+.dark-mode .alert-error {
+    background-color: rgba(245, 101, 101, 0.2);
+    color: #fc8181;
+    border-left-color: #f56565;
+}
+
+.dark-mode .alert-success {
+    background-color: rgba(72, 187, 120, 0.2);
+    color: #68d391;
+    border-left-color: #48bb78;
+}
