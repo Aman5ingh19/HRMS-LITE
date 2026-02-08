@@ -111,8 +111,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [],
 }
 
-cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001')
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins.split(',')]
+# Allow all origins for now (can be restricted later)
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
