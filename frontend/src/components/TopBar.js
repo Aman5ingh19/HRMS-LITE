@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import './TopBar.css';
 
 const TopBar = ({ title = 'Dashboard', subtitle = '' }) => {
@@ -25,7 +26,7 @@ const TopBar = ({ title = 'Dashboard', subtitle = '' }) => {
             <div className="topbar-right">
                 <div className="topbar-search">
                     <form onSubmit={handleSearch}>
-                        <span className="search-icon">🔍</span>
+                        <Search className="search-icon" size={18} />
                         <input
                             type="text"
                             placeholder="Search anything..."

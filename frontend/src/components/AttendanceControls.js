@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LogIn, LogOut } from 'lucide-react';
 import './AttendanceControls.css';
 
 const AttendanceControls = ({ employees, onCheckIn, onCheckOut, loading }) => {
@@ -47,7 +48,7 @@ const AttendanceControls = ({ employees, onCheckIn, onCheckOut, loading }) => {
                         className="btn btn-check-in"
                         disabled={loading || !selectedEmployee}
                     >
-                        <span className="btn-icon">✅</span>
+                        <LogIn className="btn-icon" size={20} />
                         Check In
                     </button>
                     <button
@@ -55,7 +56,7 @@ const AttendanceControls = ({ employees, onCheckIn, onCheckOut, loading }) => {
                         className="btn btn-check-out"
                         disabled={loading || !selectedEmployee}
                     >
-                        <span className="btn-icon"></span>
+                        <LogOut className="btn-icon" size={20} />
                         Check Out
                     </button>
                 </div>

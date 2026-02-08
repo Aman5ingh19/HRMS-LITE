@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { employeeAPI, attendanceAPI } from '../services/api';
+import { Users, Clipboard, UserPlus, UserMinus, AlertTriangle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -167,7 +168,7 @@ const Dashboard = () => {
         return (
             <div className="dashboard-new">
                 <div className="error-container">
-                    <span className="error-icon">⚠️</span>
+                    <AlertTriangle className="error-icon" size={64} />
                     <h2>Something went wrong</h2>
                     <p>{error}</p>
                     <button onClick={fetchDashboardData} className="retry-btn">
@@ -184,11 +185,10 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-new">
-            {/* Stats Cards Row */}
             <div className="stats-row">
                 <div className="stat-card-new stat-primary">
                     <div className="stat-icon-wrapper">
-                        <span className="stat-icon-new">👥</span>
+                        <Users className="stat-icon-new" size={28} />
                     </div>
                     <div className="stat-details">
                         <span className="stat-label-new">Total Employees</span>
@@ -199,7 +199,7 @@ const Dashboard = () => {
 
                 <div className="stat-card-new stat-success">
                     <div className="stat-icon-wrapper">
-                        <span className="stat-icon-new">📋</span>
+                        <Clipboard className="stat-icon-new" size={28} />
                     </div>
                     <div className="stat-details">
                         <span className="stat-label-new">Job Applicants</span>
@@ -210,7 +210,7 @@ const Dashboard = () => {
 
                 <div className="stat-card-new stat-warning">
                     <div className="stat-icon-wrapper">
-                        <span className="stat-icon-new">👤</span>
+                        <UserPlus className="stat-icon-new" size={28} />
                     </div>
                     <div className="stat-details">
                         <span className="stat-label-new">New Members</span>
@@ -221,7 +221,7 @@ const Dashboard = () => {
 
                 <div className="stat-card-new stat-info">
                     <div className="stat-icon-wrapper">
-                        <span className="stat-icon-new">✓</span>
+                        <UserMinus className="stat-icon-new" size={28} />
                     </div>
                     <div className="stat-details">
                         <span className="stat-label-new">Resigned Members</span>
@@ -231,21 +231,19 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Main Content Grid */}
             <div className="dashboard-grid">
-                {/* Attendance Calendar */}
                 <div className="dashboard-card calendar-card">
                     <div className="card-header-new">
-                        <h3>📅 Attendance Calendar</h3>
+                        <h3><Calendar size={20} style={{ display: 'inline', marginRight: '8px' }} /> Attendance Calendar</h3>
                         <div className="calendar-controls">
                             <button className="calendar-nav-btn" onClick={() => changeMonth(-1)}>
-                                ‹
+                                <ChevronLeft size={20} />
                             </button>
                             <span className="calendar-month-year">
                                 {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                             </span>
                             <button className="calendar-nav-btn" onClick={() => changeMonth(1)}>
-                                ›
+                                <ChevronRight size={20} />
                             </button>
                         </div>
                     </div>

@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
 
-// Create axios instance with default config
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -10,9 +9,7 @@ const api = axios.create({
     },
 });
 
-// Employee API calls
 export const employeeAPI = {
-    // Get all employees
     getAll: async () => {
         try {
             const response = await api.get('/employees/');
@@ -22,7 +19,6 @@ export const employeeAPI = {
         }
     },
 
-    // Add new employee
     add: async (employeeData) => {
         try {
             const response = await api.post('/employees/add/', employeeData);
@@ -32,7 +28,6 @@ export const employeeAPI = {
         }
     },
 
-    // Delete employee
     delete: async (empId) => {
         try {
             const response = await api.delete(`/employees/delete/${empId}/`);
@@ -43,9 +38,7 @@ export const employeeAPI = {
     },
 };
 
-// Attendance API calls
 export const attendanceAPI = {
-    // Check-in
     checkIn: async (employeeId) => {
         try {
             const response = await api.post('/attendance/checkin/', {
@@ -57,7 +50,6 @@ export const attendanceAPI = {
         }
     },
 
-    // Check-out
     checkOut: async (employeeId) => {
         try {
             const response = await api.post('/attendance/checkout/', {
@@ -69,7 +61,6 @@ export const attendanceAPI = {
         }
     },
 
-    // Get all attendance records
     getAll: async () => {
         try {
             const response = await api.get('/attendance/');
@@ -79,7 +70,6 @@ export const attendanceAPI = {
         }
     },
 
-    // Get attendance by employee ID
     getByEmployee: async (employeeId) => {
         try {
             const response = await api.get(`/attendance/${employeeId}/`);
