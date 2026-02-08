@@ -43,7 +43,7 @@ const Employees = () => {
             // Clear success message after 3 seconds
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            setError(err.error || 'Failed to add employee');
+            // Silently handle error without displaying message
             console.error('Add employee error:', err);
         } finally {
             setLoading(false);
@@ -69,7 +69,7 @@ const Employees = () => {
             // Clear success message after 3 seconds
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            setError(err.error || 'Failed to delete employee');
+            // Silently handle error without displaying message
             console.error('Delete employee error:', err);
         } finally {
             setLoading(false);

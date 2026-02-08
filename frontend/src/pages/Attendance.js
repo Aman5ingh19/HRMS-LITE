@@ -49,7 +49,7 @@ const Attendance = () => {
             // Clear success message after 3 seconds
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            setError(err.error || 'Failed to check in');
+            // Silently handle error without displaying message
             console.error('Check-in error:', err);
         } finally {
             setLoading(false);
@@ -71,7 +71,7 @@ const Attendance = () => {
             // Clear success message after 3 seconds
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            setError(err.error || err.message || 'Failed to check out');
+            // Silently handle error without displaying message
             console.error('Check-out error:', err);
         } finally {
             setLoading(false);
