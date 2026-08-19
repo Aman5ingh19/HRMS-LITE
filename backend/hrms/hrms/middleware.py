@@ -44,8 +44,8 @@ class MorganLoggerMiddleware:
 # Clerk Auth Middleware
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Public endpoints that always skip auth
-PUBLIC_PATHS = ['/admin/', '/api/auth/']
+# Public endpoints that always skip auth (including Render health checks)
+PUBLIC_PATHS = ['/', '/health/', '/api/health/', '/admin/', '/api/auth/']
 
 # Paths that Guest mode can access (read-only)
 GUEST_READ_PATHS = ['/api/employees/', '/api/attendance/']
