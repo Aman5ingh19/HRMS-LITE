@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
     HelpCircle, ChevronDown, ChevronUp, MessageCircle, Book,
-    Eye, AlertCircle, CheckCircle, Mail, ExternalLink, Phone,
+    Eye, CheckCircle, Mail, ExternalLink,
     Bug, Lightbulb, Shield
 } from 'lucide-react';
 import './HelpCenter.css';

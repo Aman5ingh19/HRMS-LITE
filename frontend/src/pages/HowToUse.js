@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
     BookOpen, LayoutDashboard, Users, CheckSquare, HelpCircle,
-    ChevronDown, ChevronUp, Lock, Eye, Edit3, UserPlus, UserMinus,
-    Search, Filter, Download, Bell, Moon, LogOut, Shield
+    ChevronDown, ChevronUp, Eye,
+    Bell, Moon, LogOut, Shield
 } from 'lucide-react';
 import './HowToUse.css';
 
