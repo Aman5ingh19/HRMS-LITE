@@ -1,74 +1,153 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   Global CSS — HRMS Lite
+   Uses CSS custom properties for seamless light ↔ dark theming
+══════════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* ── Light Mode (default) ──────────────────────────────────────────────────── */
 :root {
-    /* Light Mode Colors */
-    --bg-primary: #f7fafc;
+    /* Backgrounds */
+    --bg-primary:   #f0f4f8;
     --bg-secondary: #ffffff;
-    --text-primary: #1a202c;
-    --text-secondary: #718096;
-    --text-tertiary: #a0aec0;
-    --border-color: #e2e8f0;
-    --shadow: rgba(0, 0, 0, 0.04);
-    --shadow-hover: rgba(0, 0, 0, 0.08);
+    --bg-tertiary:  #e8edf3;
+
+    /* Text */
+    --text-primary:   #1a202c;
+    --text-secondary: #4a5568;
+    --text-tertiary:  #718096;
+
+  /* Dynamic layout vars */
+  --sidebar-width: 260px;
+  --header-height: 70px;
+
+  /* Colors */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border-color: #e2e8f0;
+  
+  --shadow: rgba(0, 0, 0, 0.05);
+  --shadow-hover: rgba(0, 0, 0, 0.1);
+
+  /* Accent */
+  --accent:        #667eea;
+  --accent-hover:  #5a6fd8;
 }
 
+/* ── Dark Mode ─────────────────────────────────────────────────────────────── */
 .dark-mode {
-    /* Dark Mode Colors */
-    --bg-primary: #1a202c;
-    --bg-secondary: #2d3748;
-    --text-primary: #f7fafc;
-    --text-secondary: #cbd5e0;
-    --text-tertiary: #a0aec0;
-    --border-color: #4a5568;
-    --shadow: rgba(0, 0, 0, 0.3);
-    --shadow-hover: rgba(0, 0, 0, 0.5);
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #64748b;
+  --border-color: rgba(255, 255, 255, 0.1);
+
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.4);
+
+  --accent:        #818cf8;
+  --accent-hover:  #6d76e5;
+  color-scheme: dark;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+html {
+    color-scheme: light;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
 }
 
+/* ── App layout ────────────────────────────────────────────────────────────── */
 .App {
     display: flex;
     min-height: 100vh;
 }
 
 .main-wrapper {
-    flex: 1;
-    margin-left: 260px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: var(--bg-primary);
-    transition: background-color 0.3s ease;
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  transition: margin-left 0.3s ease;
+  min-width: 0; /* Prevent flex children from forcing page overflow */
 }
 
 .main-content {
-    flex: 1;
-    padding: 30px 40px;
-    background: var(--bg-primary);
-    overflow-y: auto;
-    transition: background-color 0.3s ease;
+  flex: 1;
+  padding: 24px 32px;
+  overflow-x: hidden;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Responsive */
+/* ── Scrollbar (webkit) ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .main-wrapper {
-        margin-left: 70px;
-    }
-
-    .main-content {
-        padding: 20px 15px;
-    }
+    .main-wrapper  { margin-left: 70px; }
+    .main-content  { padding: 18px 14px; }
 }
+/* -- Responsive Layout -- */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+  }
+  .main-content {
+    padding: 16px;
+  }
+}
+
+/* ── Form Inputs Global Autofill & Selection Reset ─────────────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    -webkit-text-fill-color: var(--text-primary) !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-primary) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark-mode input:-webkit-autofill,
+.dark-mode input:-webkit-autofill:hover, 
+.dark-mode input:-webkit-autofill:focus,
+.dark-mode textarea:-webkit-autofill,
+.dark-mode select:-webkit-autofill {
+    -webkit-text-fill-color: #f8fafc !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important;
+}
+

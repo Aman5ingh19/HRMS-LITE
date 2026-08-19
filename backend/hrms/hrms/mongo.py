@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://hrmsadmin:Hrms12345@cluster0.zw2j1tk.mongodb.net/?retryWrites=true&w=majority')
+MONGO_URI = os.getenv('MONGO_URI')
 
 client = MongoClient(MONGO_URI)
 db = client["hrms_db"]

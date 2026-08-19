@@ -1,0 +1,54 @@
+/* Guest Banner */
+.guest-banner {
+    background: linear-gradient(135deg, rgba(237, 137, 54, 0.12), rgba(246, 173, 85, 0.08));
+    border: 1px solid rgba(237, 137, 54, 0.35);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 22px;
+    animation: slideDown 0.35s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.guest-banner-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.guest-banner-eye {
+    color: #dd6b20;
+    flex-shrink: 0;
+}
+
+.guest-banner-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary, #1a202c);
+    line-height: 1.5;
+}
+
+.guest-banner-lock {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #dd6b20;
+    background: rgba(237, 137, 54, 0.12);
+    border: 1px solid rgba(237, 137, 54, 0.25);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* Dark mode */
+.dark-mode .guest-banner-text {
+    color: var(--text-secondary);
+}

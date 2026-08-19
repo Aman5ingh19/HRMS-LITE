@@ -7,23 +7,8 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Navigate to backend/hrms directory
-Set-Location backend/hrms
+Set-Location "$PSScriptRoot/backend/hrms"
 
-# Activate virtual environment
-Write-Host "Activating virtual environment..." -ForegroundColor Green
-& "..\..\venv\Scripts\Activate.ps1"
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: Failed to activate virtual environment" -ForegroundColor Red
-    Write-Host "Run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser" -ForegroundColor Yellow
-    Read-Host "Press Enter to exit"
-    exit 1
-}
-
-Write-Host "Virtual environment activated!" -ForegroundColor Green
-Write-Host ""
-
-# Start Django server
 Write-Host "Starting Django server at http://127.0.0.1:8000" -ForegroundColor Green
 Write-Host ""
 Write-Host "API Endpoints:" -ForegroundColor Cyan
@@ -33,4 +18,4 @@ Write-Host ""
 Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Yellow
 Write-Host ""
 
-python manage.py runserver 127.0.0.1:8000
+& "$PSScriptRoot/venv/Scripts/python.exe" manage.py runserver 127.0.0.1:8000
