@@ -1,0 +1,37 @@
+asgiref==3.8.1
+Django==5.1.5
+django-cors-headers==4.6.0
+djangorestframework==3.15.2
+dnspython==2.8.0
+gunicorn==23.0.0
+pymongo==4.10.1
+python-dotenv==1.0.1
+pytz==2024.2
+sqlparse==0.5.3
+whitenoise==6.6.0
+mongomock==4.3.0
+
+# Security & Rate Limiting
+django-ratelimit==4.1.0
+
+# Logging
+structlog==24.4.0
+
+# Caching / Redis
+django-redis==5.4.0
+redis==5.2.1
+
+# Compression
+django-compression-middleware==0.5.0
+
+# Image Uploads / Cloudinary
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
+Pillow==11.0.0
+
+# Schema Validation
+pydantic==2.10.4
+
+# JWT verification (for Clerk tokens)
+PyJWT==2.10.1
+cryptography==44.0.0
