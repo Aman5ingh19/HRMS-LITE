@@ -52,3 +52,21 @@
 .dark-mode .guest-banner-text {
     color: var(--text-secondary);
 }
+
+@media (max-width: 640px) {
+    .guest-banner {
+        padding: 10px 14px;
+        margin-bottom: 16px;
+    }
+    .guest-banner-inner {
+        gap: 8px;
+    }
+    .guest-banner-text {
+        font-size: 12px;
+        line-height: 1.45;
+    }
+    .guest-banner-lock {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}

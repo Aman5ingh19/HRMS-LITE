@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
     Building2, Users, CheckSquare, Eye,
-    Shield, Code2, Heart, Mail, Github, Linkedin,
+    Shield, Code2, Heart,
     Zap, RefreshCw, LayoutDashboard, Cloud, Database
 } from 'lucide-react';
 import './About.css';
@@ -182,33 +182,6 @@ export default function About() {
                 </div>
             </div>
 
-            {/* Developer */}
-            <div className="about-section">
-                <h2 className="about-section-title">Developer</h2>
-                <div className="about-dev-card">
-                    <div className="about-dev-avatar">
-                        <span>AS</span>
-                    </div>
-                    <div className="about-dev-info">
-                        <h3 className="about-dev-name">Aman Singh</h3>
-                        <p className="about-dev-bio">
-                            Full-stack developer passionate about clean code, modern UIs, and developer experience.
-                            HRMS Lite was built as a practical, production-ready system for modern HR operations.
-                        </p>
-                        <div className="about-dev-links">
-                            <a href="mailto:aman@example.com" className="about-dev-link">
-                                <Mail size={15} /> Email
-                            </a>
-                            <a href="https://github.com" target="_blank" rel="noreferrer" className="about-dev-link">
-                                <Github size={15} /> GitHub
-                            </a>
-                            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="about-dev-link">
-                                <Linkedin size={15} /> LinkedIn
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Footer note */}
             <div className="about-footer-note">

@@ -336,12 +336,70 @@
     border-color: var(--border-color);
 }
 
-@media (max-width: 600px) {
-    .howto-steps-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 640px) {
+    .howto-hero {
+        gap: 12px;
+        margin-bottom: 18px;
     }
-
+    .howto-hero-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+    }
     .howto-title {
         font-size: 20px;
+    }
+    .howto-subtitle {
+        font-size: 12.5px;
+    }
+    .howto-guest-callout {
+        padding: 12px 14px;
+        gap: 10px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+    .howto-steps-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .howto-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+    .howto-card-header {
+        gap: 10px;
+    }
+    .howto-step-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+    .howto-step-title {
+        font-size: 15px;
+    }
+    .howto-section {
+        margin-bottom: 28px;
+    }
+    .howto-section-title {
+        font-size: 17px;
+        margin-bottom: 12px;
+    }
+    .howto-table th {
+        padding: 10px 12px;
+        font-size: 11px;
+    }
+    .howto-table td {
+        padding: 10px 12px;
+        font-size: 12.5px;
+    }
+    .howto-faq-q {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    .howto-faq-a {
+        padding: 0 14px 12px 34px;
+        font-size: 12.5px;
     }
 }

@@ -272,3 +272,65 @@
 .dark-mode .help-faq-q:hover {
     background: var(--bg-primary);
 }
+
+@media (max-width: 640px) {
+    .help-hero {
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .help-hero-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+    .help-title {
+        font-size: 20px;
+    }
+    .help-subtitle {
+        font-size: 12.5px;
+    }
+    .help-main {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .help-sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .help-cat-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+        width: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+    .help-faq-q {
+        padding: 12px 14px;
+        font-size: 13px;
+        gap: 8px;
+    }
+    .help-faq-a {
+        padding: 0 14px 12px 34px;
+        font-size: 12.5px;
+    }
+    .help-tips-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .help-tip-chip {
+        min-width: 100%;
+        padding: 8px 12px;
+    }
+    .help-contact-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .help-contact-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+}

@@ -336,8 +336,61 @@
 }
 
 @media (max-width: 600px) {
-    .about-hero-title { font-size: 26px; }
-    .about-arch-grid { flex-direction: column; }
-    .about-arch-arrow { transform: rotate(90deg); }
-    .about-dev-card { flex-direction: column; }
+    .about-hero {
+        border-radius: 14px;
+        margin-bottom: 18px;
+        min-height: auto;
+    }
+    .about-hero-content {
+        padding: 26px 14px;
+        gap: 8px;
+    }
+    .about-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+    }
+    .about-hero-title { 
+        font-size: 22px; 
+    }
+    .about-hero-tagline {
+        font-size: 13px;
+    }
+    .about-card {
+        padding: 18px 16px;
+        border-radius: 12px;
+    }
+    .about-section-title {
+        font-size: 17px;
+        margin-bottom: 12px;
+    }
+    .about-features-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .about-feature-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+    .about-arch-grid { 
+        flex-direction: column; 
+    }
+    .about-arch-arrow { 
+        transform: rotate(90deg); 
+        padding: 4px 0;
+    }
+    .about-arch-block {
+        width: 100%;
+        min-width: 0;
+    }
+    .about-dev-card { 
+        flex-direction: column; 
+        align-items: center;
+        text-align: center;
+        padding: 18px 16px;
+        border-radius: 12px;
+    }
+    .about-dev-links {
+        justify-content: center;
+    }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Users, CheckSquare, HelpCircle, LogOut,
-    Building2, Info, BookOpen, Eye, Settings
+    Building2, Info, BookOpen, Eye, Settings, X
 } from 'lucide-react';
 import { useClerk } from '@clerk/clerk-react';
 import { useAuth } from '../context/AuthContext';
@@ -16,8 +16,17 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
     const isActive = (path) => location.pathname === path ? 'active' : '';
 
+    const handleLinkClick = () => {
+        if (window.innerWidth <= 1024 && isOpen && onToggle) {
+            onToggle();
+        }
+    };
+
     const handleLogout = async (e) => {
         e.preventDefault();
+        if (window.innerWidth <= 1024 && isOpen && onToggle) {
+            onToggle();
+        }
         if (isGuest) {
             logoutGuest();
         } else if (clerk?.signOut) {
@@ -48,16 +57,30 @@ const Sidebar = ({ isOpen, onToggle }) => {
     return (
         <>
         {/* Mobile Overlay */}
-        <div className={`sidebar-overlay ${isOpen ? 'show' : ''}`} onClick={onToggle} />
+        <div 
+            className={`sidebar-overlay ${isOpen ? 'show' : ''}`} 
+            onClick={onToggle} 
+            aria-hidden="true"
+        />
 
         <div className={`sidebar ${isOpen ? 'open' : ''}`}>
-            {/* Logo */}
+            {/* Logo Section */}
             <div className="sidebar-logo">
-                <Building2 className="logo-icon" size={32} />
-                <div className="logo-text">
-                    <span className="logo-title">HRMS</span>
-                    <span className="logo-subtitle">Lite</span>
+                <div className="sidebar-logo-brand">
+                    <Building2 className="logo-icon" size={30} />
+                    <div className="logo-text">
+                        <span className="logo-title">HRMS</span>
+                        <span className="logo-subtitle">Lite</span>
+                    </div>
                 </div>
+                {/* Mobile Drawer Close Button */}
+                <button 
+                    className="sidebar-close-btn" 
+                    onClick={onToggle} 
+                    aria-label="Close sidebar menu"
+                >
+                    <X size={20} />
+                </button>
             </div>
 
             {/* Guest Badge */}
@@ -79,6 +102,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 <Link
                                     to={item.path}
                                     className={`sidebar-link ${isActive(item.path)}`}
+                                    onClick={handleLinkClick}
                                 >
                                     <IconComponent className="sidebar-icon" size={20} />
                                     <span className="sidebar-label">{item.label}</span>
@@ -101,6 +125,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 <Link
                                     to={item.path}
                                     className={`sidebar-link ${isActive(item.path)}`}
+                                    onClick={handleLinkClick}
                                 >
                                     <IconComponent className="sidebar-icon" size={20} />
                                     <span className="sidebar-label">{item.label}</span>
@@ -114,12 +139,8 @@ const Sidebar = ({ isOpen, onToggle }) => {
             <div className="sidebar-bottom">
                 <div className="sidebar-divider" />
                 <button
-                    onClick={(e) => {
-                        handleLogout(e);
-                        if (window.innerWidth <= 768 && isOpen) onToggle();
-                    }}
+                    onClick={handleLogout}
                     className="sidebar-link sidebar-logout-btn"
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer' }}
                 >
                     <LogOut className="sidebar-icon" size={20} />
                     <span className="sidebar-label">{isGuest ? 'Exit Guest Mode' : 'Logout'}</span>
