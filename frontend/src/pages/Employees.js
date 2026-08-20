@@ -52,7 +52,7 @@ const Employees = () => {
     const [pagination, setPagination] = useState(null);
     const LIMIT = 10;
 
-    const fetchEmployees = useCallback(async (currentPage = page, searchTerm = search) => {
+    const fetchEmployees = useCallback(async (currentPage, searchTerm) => {
         try {
             setLoading(true);
             const result = await employeeAPI.getAll({ page: currentPage, limit: LIMIT, search: searchTerm });
@@ -69,15 +69,15 @@ const Employees = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, search]);
+    }, []);
 
-    useEffect(() => { fetchEmployees(page, search); }, [page]);
-
-    // Debounced search
+    // Debounced search + page change
     useEffect(() => {
-        const timer = setTimeout(() => { setPage(1); fetchEmployees(1, search); }, 400);
+        const timer = setTimeout(() => {
+            fetchEmployees(page, search);
+        }, 300);
         return () => clearTimeout(timer);
-    }, [search]);
+    }, [page, search, fetchEmployees]);
 
     const handleAddEmployee = async (employeeData) => {
         if (isGuest) return toast.error('Guest mode: cannot add employees');

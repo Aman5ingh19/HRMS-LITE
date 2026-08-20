@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { employeeAPI, attendanceAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -47,11 +47,7 @@ const Dashboard = () => {
     // Department filter for employee table
     const [selectedDept, setSelectedDept] = useState('All');
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
-
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -99,7 +95,11 @@ const Dashboard = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isGuest]);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [fetchDashboardData]);
 
     // Calculate REAL department breakdown from MongoDB data
     const getDepartmentStats = () => {

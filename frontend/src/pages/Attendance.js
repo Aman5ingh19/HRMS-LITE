@@ -36,7 +36,7 @@ const Attendance = () => {
     const [pagination, setPagination] = useState(null);
     const LIMIT = 10;
 
-    const fetchData = useCallback(async (currentPage = page, date = filterDate) => {
+    const fetchData = useCallback(async (currentPage, date) => {
         try {
             setLoading(true);
             const [empResult, attResult] = await Promise.all([
@@ -59,10 +59,11 @@ const Attendance = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, filterDate]);
+    }, []);
 
-    useEffect(() => { fetchData(page, filterDate); }, [page]);
-    useEffect(() => { setPage(1); fetchData(1, filterDate); }, [filterDate]);
+    useEffect(() => {
+        fetchData(page, filterDate);
+    }, [page, filterDate, fetchData]);
 
     const handleCheckIn = async (employeeId) => {
         if (isGuest) return toast.error('Guest mode: cannot mark attendance');
@@ -102,8 +103,8 @@ const Attendance = () => {
                 </div>
                 <div className="attendance-filter">
                     <label>Filter by date</label>
-                    <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} />
-                    {filterDate && <button onClick={() => setFilterDate('')} className="clear-filter">Clear</button>}
+                    <input type="date" value={filterDate} onChange={e => { setFilterDate(e.target.value); setPage(1); }} />
+                    {filterDate && <button onClick={() => { setFilterDate(''); setPage(1); }} className="clear-filter">Clear</button>}
                 </div>
             </div>
 
