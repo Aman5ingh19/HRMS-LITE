@@ -1,7 +1,0 @@
-python-interpreter-path = "../../venv/Scripts/python.exe"
-search-path = [
-    "."
-]
-site-package-path = [
-    "../../venv/Lib/site-packages"
-]

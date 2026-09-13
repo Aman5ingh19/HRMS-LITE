@@ -1,0 +1,17 @@
+apiVersion: v2
+name: hrms-lite
+description: Production Helm Chart for HRMS-Lite Cloud-Native HR Management Platform
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+maintainers:
+  - name: HRMS Engineering Team
+    email: engineering@hrms-lite.io
+keywords:
+  - hrms
+  - django
+  - react
+  - kafka
+  - rabbitmq
+  - n8n
+  - redis

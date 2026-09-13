@@ -21,6 +21,7 @@ from pydantic import ValidationError
 
 from hrms.mongo import employees_collection
 from .validators import EmployeeCreateSchema, format_pydantic_errors
+from hrms.messaging import publish_task, publish_event, trigger_n8n_webhook
 
 logger = logging.getLogger('hrms')
 
@@ -67,25 +68,26 @@ def get_employees(request):
         logger.info(f'Cache HIT for {cache_key}')
         return Response(cached, status=status.HTTP_200_OK)
 
-    logger.info(f'Cache MISS for {cache_key} — querying MongoDB')
-
-    # Build MongoDB query
+    # Build search query
     query = {}
     if search:
-        import re
-        search_regex = re.compile(search, re.IGNORECASE)
         query = {
             '$or': [
-                {'full_name': {'$regex': search_regex}},
-                {'employee_id': {'$regex': search_regex}},
-                {'department': {'$regex': search_regex}},
-                {'email': {'$regex': search_regex}},
+                {'full_name': {'$regex': search, '$options': 'i'}},
+                {'employee_id': {'$regex': search, '$options': 'i'}},
+                {'department': {'$regex': search, '$options': 'i'}},
+                {'email': {'$regex': search, '$options': 'i'}},
             ]
         }
 
     total = employees_collection.count_documents(query)
     skip = (page - 1) * limit
-    employees = list(employees_collection.find(query, {'_id': 0}).skip(skip).limit(limit))
+    employees = list(
+        employees_collection.find(query, {'_id': 0})
+        .sort('created_at', -1)
+        .skip(skip)
+        .limit(limit)
+    )
 
     response_data = {
         'data': employees,
@@ -101,15 +103,34 @@ def get_employees(request):
 
     # Store in cache
     cache.set(cache_key, response_data, EMPLOYEES_CACHE_TTL)
+    logger.info(f'Cache MISS for {cache_key} — fetched from DB')
     return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@throttle_classes([AnonRateThrottle])
+def get_employee_by_id(request, emp_id):
+    """Get a single employee by employee_id."""
+    emp_id = emp_id.upper()
+    cache_key = f'employee:{emp_id}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return Response(cached, status=status.HTTP_200_OK)
+
+    employee = employees_collection.find_one({'employee_id': emp_id}, {'_id': 0})
+    if not employee:
+        return Response({'error': 'Employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    cache.set(cache_key, employee, EMPLOYEES_CACHE_TTL)
+    return Response(employee, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @throttle_classes([AnonRateThrottle])
-def add_employee(request):
+def create_employee(request):
     """
     Add a new employee with Pydantic (Zod) validation.
-    Invalidates employee cache on success.
+    Invalidates employee cache on success, emits Kafka telemetry, RabbitMQ tasks & n8n webhook.
     """
     # Validate with Pydantic
     try:
@@ -135,6 +156,31 @@ def add_employee(request):
     _invalidate_employee_cache()
 
     logger.info(f'Employee created: {employee_data["employee_id"]}')
+
+    # Event-Driven Architecture Dispatches
+    # 1. RabbitMQ Async Task: Send Welcome Email
+    publish_task('send_welcome_email', {
+        'employee_id': employee_data['employee_id'],
+        'full_name': employee_data['full_name'],
+        'email': employee_data['email'],
+        'department': employee_data.get('department', 'Engineering'),
+    })
+
+    # 2. Apache Kafka Real-Time Stream: EMPLOYEE_CREATED
+    publish_event(
+        topic='hrms.employee.events',
+        event_type='EMPLOYEE_CREATED',
+        data=employee_data,
+        key=employee_data['employee_id']
+    )
+
+    # 3. n8n Workflow Automation Webhook Trigger
+    trigger_n8n_webhook(
+        endpoint_path='employee-onboarding',
+        event_name='EMPLOYEE_CREATED',
+        payload=employee_data
+    )
+
     return Response({'message': 'Employee added successfully', 'employee_id': employee_data['employee_id']}, status=status.HTTP_201_CREATED)
 
 
@@ -142,7 +188,7 @@ def add_employee(request):
 @throttle_classes([AnonRateThrottle])
 def delete_employee(request, emp_id):
     """
-    Delete an employee. Invalidates cache and also removes their Cloudinary photo.
+    Delete an employee. Invalidates cache, removes Cloudinary photo and emits Kafka stream event.
     """
     emp_id = emp_id.upper()
 
@@ -164,6 +210,15 @@ def delete_employee(request, emp_id):
     _invalidate_employee_cache()
 
     logger.info(f'Employee deleted: {emp_id}')
+
+    # Kafka stream event: EMPLOYEE_DELETED
+    publish_event(
+        topic='hrms.employee.events',
+        event_type='EMPLOYEE_DELETED',
+        data={'employee_id': emp_id},
+        key=emp_id
+    )
+
     return Response({'message': 'Employee deleted successfully'}, status=status.HTTP_200_OK)
 
 

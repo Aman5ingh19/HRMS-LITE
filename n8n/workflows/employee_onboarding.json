@@ -1,0 +1,85 @@
+{
+  "name": "HRMS - Automated Employee Onboarding & Notification Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "employee-onboarding",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook - Employee Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "employee-onboarding"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract employee details from payload\nconst body = items[0].json.body || items[0].json;\nconst employee = body.payload || body;\n\nreturn [{\n  json: {\n    employee_id: employee.employee_id,\n    full_name: employee.full_name,\n    email: employee.email,\n    department: employee.department || 'General',\n    role: employee.role || 'Staff',\n    created_at: employee.created_at || new Date().toISOString(),\n    welcome_message: `🎉 Welcome ${employee.full_name} (${employee.employee_id}) to the ${employee.department} team!`\n  }\n}];"
+      },
+      "id": "2",
+      "name": "Format Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "channel": "#general",
+        "text": "={{ $json.welcome_message }}"
+      },
+      "id": "3",
+      "name": "Slack Announcement",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [720, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hr@hrms-lite.company.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome to the Company! Your HRMS Access Details",
+        "text": "=Hi {{ $json.full_name }},\n\nWelcome to our organization! Your profile has been activated with Employee ID: {{ $json.employee_id }}.\n\nPlease log in to the HRMS portal to mark your daily attendance and complete your profile setup."
+      },
+      "id": "4",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [720, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Employee Created": {
+      "main": [
+        [
+          {
+            "node": "Format Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Payload": {
+      "main": [
+        [
+          {
+            "node": "Slack Announcement",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {}
+}

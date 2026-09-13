@@ -17,6 +17,7 @@ from django.core.cache import cache
 from hrms.mongo import employees_collection, attendance_collection
 from employees.validators import AttendanceCheckInSchema, AttendanceCheckOutSchema, format_pydantic_errors
 from pydantic import ValidationError
+from hrms.messaging import publish_task, publish_event, trigger_n8n_webhook
 
 logger = logging.getLogger('hrms')
 
@@ -160,6 +161,24 @@ def check_in(request):
     _invalidate_attendance_cache()
 
     logger.info(f'Check-in: {employee_id} at {current_time}')
+
+    # Event Dispatches
+    # 1. RabbitMQ Async Notification
+    publish_task('attendance_notification', {
+        'employee_id': employee_id,
+        'action': 'Check-In',
+        'time': current_time,
+        'date': today
+    })
+
+    # 2. Apache Kafka Telemetry Stream
+    publish_event(
+        topic='hrms.attendance.events',
+        event_type='ATTENDANCE_CHECKIN',
+        data=record,
+        key=employee_id
+    )
+
     return Response({'message': 'Check-in successful', 'check_in_time': current_time}, status=200)
 
 
@@ -187,8 +206,8 @@ def check_out(request):
         return Response({'message': 'Already checked out today', 'check_out_time': existing.get('check_out_time')}, status=200)
 
     # Calculate duration
+    duration_minutes = 0
     try:
-        from datetime import time as dt_time
         checkin_dt = datetime.strptime(f"{today} {existing['check_in_time']}", '%Y-%m-%d %H:%M:%S')
         checkout_dt = datetime.strptime(f"{today} {current_time}", '%Y-%m-%d %H:%M:%S')
         duration_minutes = int((checkout_dt - checkin_dt).total_seconds() / 60)
@@ -203,4 +222,30 @@ def check_out(request):
     _invalidate_attendance_cache()
 
     logger.info(f'Check-out: {employee_id} at {current_time}, duration: {duration_str}')
+
+    checkout_payload = {
+        'employee_id': employee_id,
+        'date': today,
+        'check_in_time': existing.get('check_in_time'),
+        'check_out_time': current_time,
+        'duration_minutes': duration_minutes,
+        'duration_str': duration_str,
+    }
+
+    # 1. RabbitMQ Async Task
+    publish_task('attendance_notification', {
+        'employee_id': employee_id,
+        'action': 'Check-Out',
+        'time': current_time,
+        'duration': duration_str
+    })
+
+    # 2. Apache Kafka Telemetry Stream
+    publish_event(
+        topic='hrms.attendance.events',
+        event_type='ATTENDANCE_CHECKOUT',
+        data=checkout_payload,
+        key=employee_id
+    )
+
     return Response({'message': 'Check-out successful', 'check_out_time': current_time, 'duration': duration_str}, status=200)

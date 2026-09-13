@@ -1,0 +1,45 @@
+{
+  "name": "HRMS - Attendance Anomaly Alert Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "attendance-anomaly",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook - Anomaly Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "attendance-anomaly"
+    },
+    {
+      "parameters": {
+        "channel": "#hr-alerts",
+        "text": "=⚠️ *HRMS Anomaly Detected*:\nEmployee ID: `{{ $json.body.payload.employee_id }}`\nReason: `{{ $json.body.payload.reason || 'Unusual attendance pattern / missed checkout' }}`\nTimestamp: `{{ $json.body.timestamp }}`"
+      },
+      "id": "2",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Anomaly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {}
+}

@@ -1,0 +1,73 @@
+{
+  "name": "HRMS - Daily Attendance Digest & Summary Cron",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyDay",
+              "hour": 18,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Cron Trigger (6 PM Daily)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/attendance/summary/",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Fetch Live Attendance Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "reports@hrms-lite.company.com",
+        "toEmail": "hr-executive@company.com",
+        "subject": "=[HRMS] Daily Attendance Digest - {{ new Date().toLocaleDateString() }}",
+        "text": "=Here is today's workforce attendance summary:\n\n- Total Active Employees: {{ $json.total_employees || 'N/A' }}\n- Present Count: {{ $json.present_today || 'N/A' }}\n- Attendance Percentage: {{ $json.attendance_rate || 'N/A' }}%\n\nGenerated automatically by HRMS-Lite n8n Engine."
+      },
+      "id": "3",
+      "name": "Email HR Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Cron Trigger (6 PM Daily)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Live Attendance Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Live Attendance Stats": {
+      "main": [
+        [
+          {
+            "node": "Email HR Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {}
+}

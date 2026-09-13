@@ -1,0 +1,216 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 1. Django Backend REST API Service
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: hrms_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - backend/hrms/.env
+    environment:
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend,frontend
+      - REDIS_URL=redis://redis:6379/1
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - N8N_WEBHOOK_BASE_URL=http://n8n:5678/webhook
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 2. React SPA Frontend (Nginx Alpine)
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        - REACT_APP_API_URL=/api
+    container_name: hrms_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 3. Redis In-Memory Cache & Session Broker
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: hrms_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 4. RabbitMQ Message Broker (AMQP + Management Dashboard)
+  # ============================================================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: hrms_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"     # AMQP protocol port
+      - "15672:15672"   # Management Web UI (guest:guest)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 5. RabbitMQ Asynchronous Task Worker
+  # ============================================================================
+  rabbitmq-worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: hrms_rabbitmq_worker
+    restart: unless-stopped
+    command: ["python", "manage.py", "run_rabbitmq_worker"]
+    env_file:
+      - backend/hrms/.env
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 6. Apache Kafka & Zookeeper (Distributed Event Streaming)
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: hrms_zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - hrms_network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: hrms_kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 7. Kafka Real-Time Stream Consumer & Telemetry Processor
+  # ============================================================================
+  kafka-consumer:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: hrms_kafka_consumer
+    restart: unless-stopped
+    command: ["python", "manage.py", "run_kafka_consumer"]
+    env_file:
+      - backend/hrms/.env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 8. n8n Workflow Automation Platform
+  # ============================================================================
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: hrms_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - hrms_network
+
+  # ============================================================================
+  # 9. Kafka UI (Visual Dashboard for Kafka Topics & Events)
+  # ============================================================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: hrms_kafka_ui
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-hrms-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+    networks:
+      - hrms_network
+
+# ==============================================================================
+# Persistent Volumes & Network Topology
+# ==============================================================================
+volumes:
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  n8n_data:
+    driver: local
+
+networks:
+  hrms_network:
+    driver: bridge

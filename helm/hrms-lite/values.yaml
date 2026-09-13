@@ -1,0 +1,79 @@
+# Default values for hrms-lite Helm Chart
+
+global:
+  environment: production
+
+backend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/aman5ingh19/hrms-lite/backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/aman5ingh19/hrms-lite/frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 300m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: hrms.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /health
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls: []
+
+redis:
+  enabled: true
+  host: "hrms-redis"
+  port: 6379
+
+rabbitmq:
+  enabled: true
+  host: "hrms-rabbitmq"
+  port: 5672
+
+kafka:
+  enabled: true
+  bootstrapServers: "hrms-kafka:9092"
+
+n8n:
+  enabled: true
+  webhookUrl: "http://hrms-n8n:5678/webhook"

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hrms-n8n
+  namespace: hrms
+  labels:
+    app: hrms-n8n
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hrms-n8n
+  template:
+    metadata:
+      labels:
+        app: hrms-n8n
+    spec:
+      containers:
+        - name: n8n
+          image: n8nio/n8n:latest
+          ports:
+            - containerPort: 5678
+              name: n8n-web
+          env:
+            - name: N8N_PORT
+              value: "5678"
+            - name: N8N_PROTOCOL
+              value: "http"
+            - name: N8N_BASIC_AUTH_ACTIVE
+              value: "false"
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hrms-n8n
+  namespace: hrms
+spec:
+  ports:
+    - port: 5678
+      name: n8n-web
+      targetPort: 5678
+  selector:
+    app: hrms-n8n

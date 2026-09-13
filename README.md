@@ -1,45 +1,92 @@
-# HRMS Lite — Cloud-Native Full-Stack HR Management System
+# 🚀 HRMS Lite — Enterprise Cloud-Native & Distributed HR Management Platform
 
-
-A modern, production-grade Human Resource Management System (HRMS) designed for agile organizations. Features real-time employee management, live attendance logging with check-in/out duration tracking, interactive attendance calendar, cloud media storage via Cloudinary CDN, role-based access control with Clerk & Guest Mode, and seamless Dark/Light theme switching.
+A production-grade, distributed Human Resource Management System (HRMS) built for enterprise scale and high resilience. Featuring real-time employee management, live attendance logging with telemetry streaming, interactive attendance calendar, cloud media storage via Cloudinary CDN, role-based access control with Clerk & Guest Mode, zero-flicker Dark/Light themes, and an event-driven distributed microservices architecture powered by **Docker**, **Kubernetes (K8s)**, **Apache Kafka**, **RabbitMQ**, **n8n Workflow Automation**, and **GitHub Actions CI/CD**.
 
 ---
 
-## 🌟 Key Features
+## 🏛️ System Architecture
 
-### 👥 1. Employee Management
+```
+                    ┌────────────────────────────────────────┐
+                    │               End Users                │
+                    └───────────────────┬────────────────────┘
+                                        │
+                         (HTTPS / Ingress / Port 80)
+                                        │
+                                        ▼
+                           ┌─────────────────────────┐
+                           │   React 18 SPA (Nginx)  │
+                           └────────────┬────────────┘
+                                        │ (Reverse Proxy /api/)
+                                        ▼
+                           ┌─────────────────────────┐
+                           │  Django 5 REST API      │
+                           │  (Gunicorn WSGI)        │
+                           └───────┬─────┬────┬──────┘
+                                   │     │    │
+            ┌──────────────────────┘     │    └──────────────────────┐
+            ▼                            ▼                           ▼
+  ┌───────────────────┐        ┌───────────────────┐       ┌───────────────────┐
+  │   MongoDB Atlas   │        │    Redis Cache    │       │   n8n Workflows   │
+  │ (Persistent DB)   │        │  (Session / TTL)  │       │ (Webhooks Engine) │
+  └───────────────────┘        └───────────────────┘       └───────────────────┘
+                                         │                           │
+                                         ▼                           ▼
+                               ┌───────────────────┐       ┌───────────────────┐
+                               │     RabbitMQ      │       │   Apache Kafka    │
+                               │  (AMQP Tasks/Mail)│       │ (Event Telemetry) │
+                               └─────────┬─────────┘       └─────────┬─────────┘
+                                         │                           │
+                                         ▼                           ▼
+                               ┌───────────────────┐       ┌───────────────────┐
+                               │  RabbitMQ Worker  │       │  Kafka Consumer   │
+                               │  (Background Ops) │       │ (Live Analytics)  │
+                               └───────────────────┘       └───────────────────┘
+```
+
+---
+
+## 🌟 Advanced Cloud-Native Features
+
+### 👥 1. Employee Lifecycle & Event Streaming
 - **Full CRUD Operations**: Add, update, view, and delete employee records.
 - **Cloudinary Photo Uploads**: Upload profile photos directly to Cloudinary with smart face-centering crop and global CDN distribution.
+- **Distributed Event Streams**: Adding or deleting employees automatically emits Kafka stream records (`hrms.employee.events`), enqueues RabbitMQ background tasks, and fires n8n webhooks.
 - **Dynamic Search & Filtering**: Instant search across employee names, IDs, emails, and departments with pagination.
 - **Safe Validation**: End-to-end type safety using Zod resolvers on the frontend and Pydantic schemas on the backend.
 
-### 📅 2. Attendance & Daily Tracking
+### 📅 2. Attendance & Real-Time Telemetry
 - **One-Click Check-In & Check-Out**: Real-time timestamps with automatic duration calculations (`Xh Ym`).
+- **Kafka Telemetry Stream**: Check-in / check-out records stream directly into `hrms.attendance.events` for live operational intelligence.
 - **Live Attendance Calendar**: Monthly interactive visual calendar showing daily attendance rates with color-coded density indicators.
 - **Historical Logs & Date Filtering**: Filter and inspect historical logs by specific dates or individual employee IDs.
 - **Timezone-Aware Calculations**: Robust local date formatting ensuring accurate day-boundary calculations across all timezones.
 
-### 📊 3. Live Operational Dashboard
-- **Real Database Metrics**: 100% live synchronization with MongoDB Atlas:
-  - *Total Employees* (Active count in database)
-  - *Present Today* (Real-time check-in count & attendance rate percentage)
-  - *Absent / Pending* (Remaining workforce count yet to mark attendance)
-  - *Total Logs Recorded* (Lifetime historical attendance logs count)
-- **Dynamic Department Breakdown**: Donut chart and legend automatically computed from active personnel records.
-- **Recent Personnel Roster**: Live preview with instant attendance status badges (● *Present Today* / ○ *Not Marked*).
+### ⚡ 3. Enterprise Asynchronous Task Queuing (RabbitMQ)
+- **Decoupled Asynchronous Workers**: Dedicated standalone RabbitMQ worker consumer executing background jobs (Welcome emails, notifications, audit trails).
+- **Resilient Fallback**: Non-blocking asynchronous publisher ensuring REST APIs remain 100% responsive even during broker maintenance.
+- **Built-in Management UI**: Web console on port `15672` for real-time queue depth and throughput inspection.
 
-### 🔍 4. Global Omni-Search
-- **Instant Search Popover**: Search from anywhere in the top navigation bar.
-- **Multi-Entity Search**: Live auto-complete matching employees (by name, ID, department, email) and quick-jump navigation routes (*Dashboard, Attendance, Profile, Settings, Guide, About*).
+### 📊 4. Real-Time Distributed Streaming (Apache Kafka)
+- **High-Throughput Telemetry**: Topics for `hrms.employee.events`, `hrms.attendance.events`, and `hrms.audit.logs`.
+- **Standalone Stream Consumers**: Live metrics aggregator listening to topics with consumer group load balancing.
+- **Kafka UI Console**: Visual web interface on port `8080` for inspecting topics, partitions, and streaming event payloads.
 
-### 🔐 5. Role-Based Access & Security
-- **Clerk Identity Authentication**: Enterprise OAuth2 authentication, multi-factor security, and JWT authorization headers.
-- **Curated Guest Mode**: Safe, read-only exploration mode allowing stakeholders and reviewers to evaluate all screens without risk of data alteration.
-- **Admin Profile & Password Management**: Dedicated security tab with password strength analyzer, live requirements validator, and profile customization.
+### 🤖 5. Low-Code Workflow Automation (n8n Engine)
+- **Automated Onboarding**: Webhook triggers welcome emails, invites, and Slack announcements when new employees join.
+- **Daily Attendance Digest**: Automated 18:00 cron summarizing active headcount and attendance rates to HR managers.
+- **Anomaly Alerts**: Real-time Slack notifications on missed checkouts or irregularities.
+- **Pre-configured JSON Workflows**: Ready-to-import templates in `n8n/workflows/`.
 
-### 🌓 6. Adaptive Responsive UI & Dark Mode
-- **Zero-Flicker Dark / Light Theme**: Full CSS variable system with native browser controls synchronization (`color-scheme`).
-- **Responsive & Viewport Adaptive**: Optimized for seamless viewing across mobile, tablet, laptop, and desktop viewports (baseline 80% browser zoom adaptive).
+### 🔄 6. Automated CI/CD Pipelines (GitHub Actions)
+- **`ci.yml`**: Linting (`flake8`), AST security scanning (`bandit`), frontend test & build, and multi-container Docker image build verification.
+- **`cd.yml`**: Automated container compilation & publishing to **GitHub Container Registry (`ghcr.io`)**.
+- **`k8s-validate.yml`**: Validates Helm chart syntax and Kubernetes manifests with YAML schema validation.
+
+### ☸️ 7. Kubernetes (K8s) & Helm Orchestration
+- **Production Manifests**: Deployments with Liveness/Readiness probes, ConfigMaps, Secrets, Ingress, and Services.
+- **Horizontal Pod Autoscaling (HPA)**: Auto-scales backend pods from 2 to 10 based on real-time CPU/Memory thresholds.
+- **Modular Helm Chart**: One-command parameter-driven cluster deployment with `helm/hrms-lite/`.
 
 ---
 
@@ -48,12 +95,17 @@ A modern, production-grade Human Resource Management System (HRMS) designed for 
 | Layer | Technologies | Purpose |
 |---|---|---|
 | **Frontend SPA** | React 18, React Router v6, Lucide Icons, React Hot Toast, Axios | Client-side reactive interface |
-| **Styling** | Vanilla CSS3 (Custom Design System, CSS Variables) | Premium modern aesthetics, glassmorphism & dark mode |
-| **Backend API** | Django 4, Django REST Framework, Pydantic, Gunicorn | Production RESTful API with schema validation |
+| **Web Server / Proxy** | Nginx Alpine, Reverse Proxy, Gzip Compression | Production asset serving & API routing |
+| **Backend API** | Django 5, Django REST Framework, Pydantic, Gunicorn | Production RESTful API with schema validation |
 | **Database** | MongoDB Atlas (Cloud NoSQL Cluster), PyMongo | High-availability cloud document store |
 | **Media & CDN** | Cloudinary Storage API | Cloud image hosting, face-detection crop & WebP delivery |
 | **Authentication** | Clerk Auth Provider | JWT authentication and identity management |
-| **Caching** | Redis / In-Memory Cache | Query response acceleration and rate limiting |
+| **Caching & Broker** | Redis 7 Alpine | Query response acceleration and session caching |
+| **Task Queue** | RabbitMQ (AMQP + Management UI) | Decoupled asynchronous task execution |
+| **Event Streaming** | Apache Kafka & Zookeeper / KRaft | High-throughput distributed telemetry stream |
+| **Workflow Engine** | n8n Automation Engine | Low-code workflow automation & webhooks |
+| **Orchestration** | Docker Compose, Kubernetes (K8s), Helm | Container orchestration & autoscaling |
+| **CI / CD** | GitHub Actions (CI / CD / K8s Validate) | Automated testing, linting, security & deployment |
 
 ---
 
@@ -61,143 +113,135 @@ A modern, production-grade Human Resource Management System (HRMS) designed for 
 
 ```
 HRMS-LITE/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                 # Lint, test, security & Docker build CI
+│       ├── cd.yml                 # Build & publish containers to GHCR
+│       └── k8s-validate.yml       # Kubernetes manifest validator
 ├── backend/
+│   ├── Dockerfile                 # Multi-stage Django + Gunicorn container
+│   ├── .dockerignore
 │   └── hrms/
 │       ├── hrms/
-│       │   ├── settings.py       # Django configuration (CORS, Cloudinary, Mongo)
-│       │   ├── urls.py           # Main URL routing
-│       │   └── mongo.py          # MongoDB Atlas cloud connection pool
-│       ├── employees/
-│       │   ├── views.py          # Employee CRUD, photo upload & avatar APIs
-│       │   ├── urls.py           # Employee routing endpoints
-│       │   └── validators.py     # Pydantic schema validators
-│       ├── attendance/
-│       │   ├── views.py          # Check-in, check-out & attendance queries
-│       │   └── urls.py           # Attendance routing endpoints
-│       ├── manage.py
-│       └── .env                  # Backend environment variables (Mongo, Cloudinary)
+│       │   ├── messaging/         # Event-driven publishers (Kafka, RabbitMQ, n8n)
+│       │   ├── workers/           # Background stream & queue consumers
+│       │   ├── settings.py        # Django configuration
+│       │   ├── urls.py            # Main URL routing & health probes
+│       │   └── mongo.py           # MongoDB Atlas connection pool
+│       ├── employees/             # Employee management app & management commands
+│       ├── attendance/            # Attendance tracking app
+│       └── manage.py
 ├── frontend/
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/           # TopBar, Sidebar, EmployeeForm, AttendanceControls
-│   │   ├── context/              # AuthContext (Clerk + Guest), ThemeContext
-│   │   ├── pages/                # Dashboard, Employees, Attendance, Profile, Settings, About, Help
-│   │   ├── services/             # Axios client, caching & API services
-│   │   ├── App.js                # Router configuration & dynamic page metadata
-│   │   ├── App.css               # Global theme tokens & layout shell
-│   │   └── index.js
-│   ├── package.json
-│   └── .env                      # Frontend environment variables (API URL, Clerk Key)
-├── requirements.txt              # Python backend dependencies
+│   ├── Dockerfile                 # Multi-stage React + Nginx Alpine container
+│   ├── nginx.conf                 # Production Nginx reverse proxy & gzip config
+│   ├── .dockerignore
+│   ├── src/                       # React 18 source code
+│   └── package.json
+├── k8s/                           # Complete Kubernetes Manifests
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── secrets.yaml
+│   ├── backend-deployment.yaml
+│   ├── backend-service.yaml
+│   ├── backend-hpa.yaml           # Horizontal Pod Autoscaler
+│   ├── frontend-deployment.yaml
+│   ├── redis-deployment.yaml
+│   ├── rabbitmq-statefulset.yaml
+│   ├── kafka-deployment.yaml
+│   ├── n8n-deployment.yaml
+│   ├── ingress.yaml
+│   └── kustomization.yaml         # 1-command deployment
+├── helm/
+│   └── hrms-lite/                 # Production Helm Chart
+├── n8n/
+│   ├── workflows/                 # Pre-built JSON workflow templates
+│   └── README.md                  # Workflow import guide
+├── scripts/
+│   ├── dev-up.ps1                 # PowerShell 1-click startup script
+│   └── dev-up.sh                  # Bash 1-click startup script
+├── docker-compose.yml             # Master multi-container orchestration stack
+├── Makefile                       # Developer shortcuts
+├── DEPLOYMENT_GUIDE.md            # Comprehensive cloud deployment manual
+├── requirements.txt               # Backend Python dependencies
 └── README.md
 ```
 
 ---
 
-## 🚀 Cloud Environment Configuration
+## 🚀 Quickstart & Running the Platform
 
-### Backend Configuration (`backend/hrms/.env`):
-```env
-SECRET_KEY=your_django_secret_key
-DEBUG=True
-ALLOWED_HOSTS=*
+### 🐳 1. Run Everything via Docker Compose (Recommended)
 
-# MongoDB Atlas
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/hrms_db?retryWrites=true&w=majority
-MONGO_DB_NAME=hrms_db
+Start the entire distributed multi-service stack with a single command:
 
-# Cloudinary Storage
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-CLOUDINARY_FOLDER=hrms-lite/employees
+```powershell
+# On Windows (PowerShell):
+.\scripts\dev-up.ps1
+
+# Or with Makefile:
+make up
+
+# Or directly:
+docker compose up -d --build
 ```
 
-### Frontend Configuration (`frontend/.env`):
-```env
-REACT_APP_API_URL=http://127.0.0.1:8000/api
-REACT_APP_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key
-```
+### 🌐 Access Service Endpoints:
+| Service | URL | Default Credentials / Note |
+|---|---|---|
+| **🖥️ Frontend Web Application** | `http://localhost:3000` | React UI on Nginx |
+| **⚡ Backend REST API** | `http://localhost:8000` | Django 5 API Root |
+| **🏥 Cluster Health Diagnostics** | `http://localhost:8000/api/system/status/` | Live Service Connectivity |
+| **🐰 RabbitMQ Management UI** | `http://localhost:15672` | Username: `guest` \| Password: `guest` |
+| **🤖 n8n Automation Engine** | `http://localhost:5678` | Visual Low-Code Workflow Canvas |
+| **📊 Kafka UI Stream Dashboard** | `http://localhost:8080` | Live Topics & Message Inspector |
 
 ---
 
-## 💻 Local Development Setup
+## ☸️ 2. Deploy to Kubernetes (K8s)
 
-### 1. Prerequisites
-- **Python 3.10+**
-- **Node.js 18+** & `npm`
-- **MongoDB Atlas** cluster connection URI
-- **Cloudinary** account credentials
+Deploy the entire platform to your Kubernetes cluster (Minikube, Kind, AWS EKS, GCP GKE, Azure AKS):
 
-### 2. Backend Installation & Run
 ```bash
-# Navigate to the backend directory
-cd backend/hrms
+# 1. Deploy with Kustomize:
+kubectl apply -k k8s/
 
-# Create and activate Python virtual environment
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
+# 2. Check pod and service status:
+kubectl get pods,svc,ingress,hpa -n hrms
 
-# Install dependencies
-pip install -r ../../requirements.txt
-
-# Run migrations and start server
-python manage.py migrate
-python manage.py runserver 127.0.0.1:8000
+# Or deploy with Helm:
+helm upgrade --install hrms-platform ./helm/hrms-lite --namespace hrms --create-namespace
 ```
-
-### 3. Frontend Installation & Run
-```bash
-# In a new terminal, navigate to the frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start React development server
-npm start
-```
-
-Open your browser and navigate to `http://localhost:3000`.
 
 ---
 
 ## 📡 REST API Reference
 
 ### 👤 Employee Endpoints
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|:---:|
-| `GET` | `/api/employees/` | List paginated employees with query filter (`?page=1&limit=10&search=`) | No |
-| `POST` | `/api/employees/add/` | Create a new employee record (Validated with Pydantic) | Admin |
-| `DELETE` | `/api/employees/delete/<emp_id>/` | Delete employee & clean up associated Cloudinary media | Admin |
-| `POST` | `/api/employees/upload-photo/` | Upload employee photo to Cloudinary CDN | Admin |
-| `POST` | `/api/profile/upload-avatar/` | Upload admin profile picture to Cloudinary CDN | Admin |
+| Method | Endpoint | Description | Event Triggered |
+|---|---|---|---|
+| `GET` | `/api/employees/` | List paginated employees with query filter (`?page=1&limit=10&search=`) | Redis Cache Hit/Miss |
+| `POST` | `/api/employees/add/` | Create a new employee record (Pydantic validated) | Kafka + RabbitMQ + n8n |
+| `DELETE` | `/api/employees/delete/<emp_id>/` | Delete employee & clean up remote Cloudinary photo | Kafka Event Stream |
+| `POST` | `/api/employees/upload-photo/` | Upload employee photo to Cloudinary CDN | CDN Delivery |
 
 ### ⏱️ Attendance Endpoints
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|:---:|
-| `POST` | `/api/attendance/checkin/` | Record employee check-in timestamp (`status: Present`) | Admin |
-| `POST` | `/api/attendance/checkout/` | Record employee check-out & compute work duration | Admin |
-| `GET` | `/api/attendance/` | Fetch historical attendance records with date filters | No |
-| `GET` | `/api/attendance/<emp_id>/` | Retrieve attendance log history for a specific employee | No |
+| Method | Endpoint | Description | Event Triggered |
+|---|---|---|---|
+| `POST` | `/api/attendance/checkin/` | Record employee check-in timestamp (`status: Present`) | Kafka Telemetry + RabbitMQ |
+| `POST` | `/api/attendance/checkout/` | Record check-out & compute duration (`Xh Ym`) | Kafka Telemetry + RabbitMQ |
+| `GET` | `/api/attendance/` | Fetch historical attendance records with date filters | Redis Cache |
+| `GET` | `/api/attendance/<emp_id>/` | Retrieve attendance log history for an employee | Redis Cache |
 
----
-
-## 🛡️ Security & Architecture Best Practices
-- **Strict Input Validation**: Dual-layer verification with frontend Zod schemas and backend Pydantic models preventing malformed payloads.
-- **Asset Lifecycle Management**: When an employee record is deleted, their remote Cloudinary image is automatically destroyed via the Cloudinary Admin API.
-- **Cache Management**: Instant cache invalidation strategies across Redis and client-side localStorage when records are created or deleted.
-- **Guest Protection**: Server and UI defense layers intercept write operations during guest demo sessions.
+### 🏥 System Diagnostics Endpoint
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health/` | Liveness probe for Kubernetes and Docker |
+| `GET` | `/api/system/status/` | Readiness probe checking MongoDB, Redis, RabbitMQ, Kafka, n8n |
 
 ---
 
 ## 👨‍💻 Author & Maintainer
 
 **Aman Singh**  
- 
 
-*Built with ❤️ — Engineered for modern, high-performance HR management.*
+*Built with ❤️ — Engineered for modern, high-performance distributed HR management.*

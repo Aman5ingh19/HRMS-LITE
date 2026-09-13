@@ -1,0 +1,18 @@
+# Optional Docker Compose overrides for local development with live code reloading
+version: '3.8'
+
+services:
+  backend:
+    volumes:
+      - ./backend/hrms:/app
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    environment:
+      - DEBUG=True
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
