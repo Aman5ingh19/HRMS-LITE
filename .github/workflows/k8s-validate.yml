@@ -30,11 +30,11 @@ jobs:
         run: |
           helm lint helm/hrms-lite/
 
-      - name: Validate K8s Manifests with Kubectl Dry-Run
+      - name: Validate K8s Manifests YAML Syntax
         run: |
-          # Use microk8s/kind or dry-run validation
+          python3 -m pip install --quiet pyyaml
           for f in k8s/*.yaml; do
             echo "Checking syntax of $f..."
-            python3 -c "import yaml; yaml.safe_load_all(open('$f'))" || exit 1
+            python3 -c "import yaml; list(yaml.safe_load_all(open('$f')))" || exit 1
           done
           echo "✅ All Kubernetes manifests are valid YAML!"

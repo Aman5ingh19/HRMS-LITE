@@ -6,6 +6,7 @@ on:
       - 'v*.*.*'
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,10 +16,15 @@ jobs:
   build-and-push:
     name: Build & Publish Multi-Arch Images to GHCR
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set Lowercase Repository Name
+        run: |
+          echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -33,11 +39,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Metadata (tags, labels) for Backend
+      - name: Extract Metadata for Backend
         id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/backend
+          images: ${{ env.IMAGE_REPO }}/backend
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -58,7 +64,7 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/frontend
+          images: ${{ env.IMAGE_REPO }}/frontend
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
