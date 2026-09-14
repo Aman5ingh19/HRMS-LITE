@@ -23,6 +23,7 @@
 * **Cloud-Native Kubernetes & Auto-Scaling**: Containerized services using multi-stage Docker builds and orchestrated on **Kubernetes (K8s)** with **Horizontal Pod Autoscaling (HPA)**, scaling pods dynamically (2 to 10 replicas) under load.
 * **Zero-Downtime CI/CD**: Implemented GitHub Actions pipelines for automated linting (`flake8`), AST security auditing (`bandit`), React production builds, and container registry publishing (`ghcr.io`).
 * **High-Performance Caching & Resilience**: Implemented Redis query caching and TTL invalidation strategies, reducing database read latency by **~70%** and preventing N+1 bottlenecks.
+* **Granular Timestamps & Historical Logging**: Built-in automated creation date & time capture (`YYYY-MM-DD HH:MM:SS`), visual registration badges, and interactive date-filtered historical attendance auditing.
 
 ---
 
@@ -92,13 +93,17 @@
 
 ### 👥 1. Employee Management & Lifecycle Events
 * **Full CRUD Operations**: Create, update, list, and delete employee records with Pydantic validation.
+* **Exact Timestamping**: Automatically records `created_at`, `created_date`, and `created_time` for full auditability.
+* **Visual Date & Time Badges**: Employee table displays formatted date pills (`DD Mon YYYY`) and time badges (`HH:MM AM/PM`).
 * **Media Management**: Direct Cloudinary upload with automated asset deletion upon employee offboarding.
 * **Event Dispatching**: Emits `EMPLOYEE_CREATED` and `EMPLOYEE_DELETED` events to Kafka, enqueues welcome tasks to RabbitMQ, and notifies n8n webhooks.
 
 ### 📅 2. Attendance Tracking & Real-Time Telemetry
 * **One-Click Check-In & Check-Out**: Real-time duration calculation (`Xh Ym`) with timezone-safe formatting.
+* **Live Timestamp Display**: Clear green check-in time and blue check-out time indicators in 12-hour format.
+* **Historical Date Filtering**: Filter by any past date (`?date=YYYY-MM-DD`) to view exactly who was present, their punch-in/out times, and work duration.
 * **Telemetry Streaming**: Live stream records dispatched to Kafka `hrms.attendance.events` for real-time attendance analytics.
-* **Interactive Calendar**: Heatmap density calendar rendering daily workforce presence percentages.
+* **Interactive Calendar**: Monthly heatmap density calendar rendering daily workforce presence percentages.
 
 ### 🤖 3. n8n Low-Code Workflow Automation
 * **`employee_onboarding.json`**: Formats employee payload, triggers welcome email, and posts announcement to `#general` Slack channel.
@@ -204,6 +209,32 @@ kubectl get pods,svc,ingress,hpa -n hrms
 # Or deploy using Helm Chart:
 helm upgrade --install hrms-platform ./helm/hrms-lite --namespace hrms --create-namespace
 ```
+
+---
+
+## 📡 REST API Reference
+
+### 👤 Employee Endpoints
+| Method | Endpoint | Description | Event Triggered |
+|---|---|---|---|
+| `GET` | `/api/employees/` | List paginated employees with query filter (`?page=1&limit=10&search=`) | Redis Cache Hit/Miss |
+| `POST` | `/api/employees/add/` | Create employee record (stamps `created_at`, `created_date`, `created_time`) | Kafka + RabbitMQ + n8n |
+| `DELETE` | `/api/employees/delete/<emp_id>/` | Delete employee & clean up remote Cloudinary photo | Kafka Event Stream |
+| `POST` | `/api/employees/upload-photo/` | Upload employee photo to Cloudinary CDN | CDN Delivery |
+
+### ⏱️ Attendance Endpoints
+| Method | Endpoint | Description | Event Triggered |
+|---|---|---|---|
+| `POST` | `/api/attendance/checkin/` | Record check-in timestamp (`status: Present`) | Kafka Telemetry + RabbitMQ |
+| `POST` | `/api/attendance/checkout/` | Record check-out & compute duration (`Xh Ym`) | Kafka Telemetry + RabbitMQ |
+| `GET` | `/api/attendance/` | Fetch attendance records with date filters (`?date=YYYY-MM-DD`) | Redis Cache |
+| `GET` | `/api/attendance/<emp_id>/` | Retrieve attendance log history for an employee | Redis Cache |
+
+### 🏥 System Diagnostics Endpoint
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health/` | Liveness probe for Kubernetes and Docker |
+| `GET` | `/api/system/status/` | Readiness probe checking MongoDB, Redis, RabbitMQ, Kafka, n8n |
 
 ---
 
