@@ -194,10 +194,11 @@
 .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
+    gap: 5px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11.5px;
+    font-weight: 700;
 }
 .status-present {
     background: rgba(72,187,120,0.14);
@@ -212,10 +213,81 @@
     color: #c53030;
 }
 
+/* Date and Time custom badges */
+.att-emp-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.att-emp-id {
+    font-size: 11.5px;
+    color: var(--accent);
+    font-family: monospace;
+    font-weight: 600;
+}
+.att-date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: rgba(102, 126, 234, 0.08);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(102, 126, 234, 0.15);
+}
+.att-time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+    width: fit-content;
+}
+.att-time-pill.checkin {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.att-time-pill.checkout {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+.att-pending-pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px dashed rgba(245, 158, 11, 0.3);
+}
+.att-duration-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.08);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
 /* Dark mode status badges */
 .dark-mode .status-present   { background: rgba(72,187,120,0.2);  color: #68d391; }
 .dark-mode .status-checked-in{ background: rgba(246,173,85,0.2);  color: #f6ad55; }
 .dark-mode .status-absent     { background: rgba(245,101,101,0.2); color: #fc8181; }
+.dark-mode .att-date-badge   { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1); }
+.dark-mode .att-time-pill.checkin { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+.dark-mode .att-time-pill.checkout { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
+.dark-mode .att-duration-badge { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
 
 /* Loading / empty */
 .loading, .empty-state {

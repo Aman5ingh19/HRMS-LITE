@@ -19,6 +19,9 @@ class EmployeeCreateSchema(BaseModel):
     salary: Optional[float] = None
     join_date: Optional[str] = None
     profile_photo_url: Optional[str] = None
+    created_at: Optional[str] = None
+    created_date: Optional[str] = None
+    created_time: Optional[str] = None
 
     @field_validator('employee_id')
     @classmethod

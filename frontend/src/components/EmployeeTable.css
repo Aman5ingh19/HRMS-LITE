@@ -1,4 +1,4 @@
-/* EmployeeTable — theme-aware */
+/* EmployeeTable — theme-aware & modern */
 .employee-table-container {
     background: var(--bg-secondary);
     border-radius: 16px;
@@ -8,11 +8,25 @@
     margin-top: 20px;
 }
 
+.employee-table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .employee-table-container h2 {
     font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 18px;
+    margin: 0;
+}
+
+.table-subtitle {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
 }
 
 .table-wrapper { 
@@ -46,11 +60,73 @@
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     font-size: 13.5px;
+    vertical-align: middle;
 }
 
 .employee-table tbody tr { transition: background 0.15s; }
 .employee-table tbody tr:hover { background: rgba(102,126,234,0.04); }
 .employee-table tbody tr:last-child td { border-bottom: none; }
+
+/* Identity Cell with Avatar */
+.emp-identity-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.emp-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(102,126,234,0.25);
+}
+
+.emp-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.emp-names {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.emp-name-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.emp-id-badge {
+    font-size: 11.5px;
+    color: var(--accent);
+    font-family: monospace;
+    font-weight: 600;
+}
+
+.emp-email-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.cell-icon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
 
 .department-badge {
     display: inline-flex;
@@ -62,11 +138,44 @@
     font-weight: 600;
 }
 
+/* Date Time Badge Group */
+.datetime-badge-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.datetime-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.datetime-pill.date {
+    background: rgba(102, 126, 234, 0.08);
+    color: var(--text-primary);
+    border: 1px solid rgba(102, 126, 234, 0.18);
+}
+
+.datetime-pill.time {
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
 .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(245,101,101,0.12);
     color: #c53030;
     border: 1.5px solid rgba(245,101,101,0.3);
-    padding: 7px 14px;
+    padding: 6px 12px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 12.5px;
@@ -74,6 +183,7 @@
     transition: all 0.2s ease;
     font-family: inherit;
 }
+
 .btn-delete:hover:not(:disabled) {
     background: #e53e3e;
     color: #fff;
@@ -81,6 +191,7 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(229,62,62,0.3);
 }
+
 .btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .empty-state, .loading {
@@ -95,11 +206,25 @@
     background: rgba(102,126,234,0.2);
     color: #818cf8;
 }
+
+.dark-mode .datetime-pill.date {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .datetime-pill.time {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
 .dark-mode .btn-delete {
     background: rgba(245,101,101,0.15);
     color: #fc8181;
     border-color: rgba(245,101,101,0.3);
 }
+
 .dark-mode .btn-delete:hover:not(:disabled) {
     background: #e53e3e;
     color: #fff;

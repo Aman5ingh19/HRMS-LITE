@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { Calendar, Clock, Timer, UserCheck, CheckCircle2 } from 'lucide-react';
 import { employeeAPI, attendanceAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AttendanceControls from '../components/AttendanceControls';
@@ -25,6 +26,23 @@ function Pagination({ pagination, onPageChange }) {
         </div>
     );
 }
+
+const formatTimeWithAMPM = (timeStr) => {
+    if (!timeStr || timeStr === '-' || timeStr.trim() === '') return '-';
+    // If already contains AM/PM
+    if (timeStr.includes('AM') || timeStr.includes('PM')) return timeStr;
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+        let hour = parseInt(parts[0], 10);
+        const min = parts[1];
+        const sec = parts[2] ? `:${parts[2]}` : '';
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12;
+        const hourStr = hour < 10 ? `0${hour}` : hour;
+        return `${hourStr}:${min}${sec} ${ampm}`;
+    }
+    return timeStr;
+};
 
 const Attendance = () => {
     const { isGuest } = useAuth();
@@ -99,10 +117,10 @@ const Attendance = () => {
             <div className="page-header-row">
                 <div>
                     <h1>Attendance Management</h1>
-                    <p className="page-subtitle">Mark attendance and view records</p>
+                    <p className="page-subtitle">Mark daily attendance and track real-time timestamps</p>
                 </div>
                 <div className="attendance-filter">
-                    <label>Filter by date</label>
+                    <label><Calendar size={14} /> Filter by date</label>
                     <input type="date" value={filterDate} onChange={e => { setFilterDate(e.target.value); setPage(1); }} />
                     {filterDate && <button onClick={() => { setFilterDate(''); setPage(1); }} className="clear-filter">Clear</button>}
                 </div>
@@ -114,8 +132,8 @@ const Attendance = () => {
 
             <div className="attendance-records-container">
                 <h2>
-                    Attendance Records
-                    {pagination && <span className="record-count"> ({pagination.total} total)</span>}
+                    Live Attendance Logs
+                    {pagination && <span className="record-count"> ({pagination.total} total records)</span>}
                 </h2>
 
                 {loading && <div className="loading">Loading attendance records...</div>}
@@ -131,31 +149,67 @@ const Attendance = () => {
                         <table className="attendance-table">
                             <thead>
                                 <tr>
-                                    <th>Employee ID</th>
-                                    <th>Name</th>
+                                    <th>Employee</th>
                                     <th>Date</th>
-                                    <th>Check In</th>
-                                    <th>Check Out</th>
+                                    <th>Check In (Time)</th>
+                                    <th>Check Out (Time)</th>
                                     <th>Duration</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {attendance.map((record, index) => (
-                                    <tr key={`${record.employee_id}-${record.date}-${index}`}>
-                                        <td data-label="Employee ID">{record.employee_id}</td>
-                                        <td data-label="Name">{record.employee_name || '-'}</td>
-                                        <td data-label="Date">{formatDate(record.date)}</td>
-                                        <td data-label="Check In">{record.check_in_time || '-'}</td>
-                                        <td data-label="Check Out">{record.check_out_time || '-'}</td>
-                                        <td data-label="Duration">{record.duration || '-'}</td>
-                                        <td data-label="Status">
-                                            <span className={`status-badge status-${(record.status || '').toLowerCase().replace(' ', '-')}`}>
-                                                {record.status || 'Present'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {attendance.map((record, index) => {
+                                    const checkInFormatted = formatTimeWithAMPM(record.check_in_time);
+                                    const checkOutFormatted = formatTimeWithAMPM(record.check_out_time);
+                                    return (
+                                        <tr key={`${record.employee_id}-${record.date}-${index}`}>
+                                            <td data-label="Employee">
+                                                <div className="att-emp-cell">
+                                                    <strong>{record.employee_name || 'Employee'}</strong>
+                                                    <span className="att-emp-id">{record.employee_id}</span>
+                                                </div>
+                                            </td>
+                                            <td data-label="Date">
+                                                <div className="att-date-badge">
+                                                    <Calendar size={12} />
+                                                    <span>{formatDate(record.date)}</span>
+                                                </div>
+                                            </td>
+                                            <td data-label="Check In">
+                                                <div className="att-time-pill checkin">
+                                                    <Clock size={12} />
+                                                    <span>{checkInFormatted}</span>
+                                                </div>
+                                            </td>
+                                            <td data-label="Check Out">
+                                                {checkOutFormatted !== '-' ? (
+                                                    <div className="att-time-pill checkout">
+                                                        <Clock size={12} />
+                                                        <span>{checkOutFormatted}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="att-pending-pill">In Progress</span>
+                                                )}
+                                            </td>
+                                            <td data-label="Duration">
+                                                {record.duration ? (
+                                                    <div className="att-duration-badge">
+                                                        <Timer size={12} />
+                                                        <span>{record.duration}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted">-</span>
+                                                )}
+                                            </td>
+                                            <td data-label="Status">
+                                                <span className={`status-badge status-${(record.status || '').toLowerCase().replace(' ', '-')}`}>
+                                                    <CheckCircle2 size={12} />
+                                                    {record.status || 'Present'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

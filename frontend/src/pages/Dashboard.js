@@ -457,7 +457,7 @@ const Dashboard = () => {
                                     <th>Employee</th>
                                     <th>Employee ID</th>
                                     <th>Department</th>
-                                    <th>Email</th>
+                                    <th>Added On</th>
                                     <th>Today's Attendance</th>
                                 </tr>
                             </thead>
@@ -467,6 +467,9 @@ const Dashboard = () => {
                                     const isPresentToday = attendanceData.some(
                                         rec => rec.employee_id === emp.employee_id && rec.date === todayStr && rec.status === 'Present'
                                     );
+
+                                    const addedDateStr = emp.created_date || (emp.created_at ? emp.created_at.split(' ')[0] : (emp.join_date || 'Recently'));
+                                    const addedTimeStr = emp.created_time || (emp.created_at && emp.created_at.split(' ')[1] ? emp.created_at.split(' ')[1] : '');
 
                                     return (
                                         <tr key={emp.employee_id || index}>
@@ -497,7 +500,12 @@ const Dashboard = () => {
                                                     {emp.department}
                                                 </span>
                                             </td>
-                                            <td className="emp-email-cell">{emp.email}</td>
+                                            <td>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px' }}>
+                                                    <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{addedDateStr}</span>
+                                                    {addedTimeStr && <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>{addedTimeStr}</span>}
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span className={`attendance-status-badge ${isPresentToday ? 'present' : 'unmarked'}`}>
                                                     {isPresentToday ? '● Present Today' : '○ Not Marked'}

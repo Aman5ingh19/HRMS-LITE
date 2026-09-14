@@ -19,6 +19,7 @@ from django.core.cache import cache
 from django.conf import settings
 from pydantic import ValidationError
 
+from datetime import datetime
 from hrms.mongo import employees_collection
 from .validators import EmployeeCreateSchema, format_pydantic_errors
 from hrms.messaging import publish_task, publish_event, trigger_n8n_webhook
@@ -141,6 +142,17 @@ def create_employee(request):
         return Response({'error': 'Validation failed', 'details': errors}, status=status.HTTP_400_BAD_REQUEST)
 
     employee_data = validated.model_dump(exclude_none=True)
+
+    # Automatically record timestamp for creation Date & Time
+    now = datetime.now()
+    if 'created_at' not in employee_data or not employee_data.get('created_at'):
+        employee_data['created_at'] = now.strftime('%Y-%m-%d %H:%M:%S')
+    if 'created_date' not in employee_data or not employee_data.get('created_date'):
+        employee_data['created_date'] = now.strftime('%Y-%m-%d')
+    if 'created_time' not in employee_data or not employee_data.get('created_time'):
+        employee_data['created_time'] = now.strftime('%I:%M:%S %p')
+    if 'join_date' not in employee_data or not employee_data.get('join_date'):
+        employee_data['join_date'] = now.strftime('%Y-%m-%d')
 
     # Check for duplicate employee_id
     existing = employees_collection.find_one({'employee_id': employee_data['employee_id']})
