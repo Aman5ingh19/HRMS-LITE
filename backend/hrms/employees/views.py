@@ -184,6 +184,10 @@ def create_employee(request):
     return Response({'message': 'Employee added successfully', 'employee_id': employee_data['employee_id']}, status=status.HTTP_201_CREATED)
 
 
+# Alias for backwards compatibility
+add_employee = create_employee
+
+
 @api_view(['DELETE'])
 @throttle_classes([AnonRateThrottle])
 def delete_employee(request, emp_id):
