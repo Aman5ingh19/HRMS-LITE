@@ -20,6 +20,7 @@ from django.conf import settings
 from pydantic import ValidationError
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from hrms.mongo import employees_collection
 from .validators import EmployeeCreateSchema, format_pydantic_errors
 from hrms.messaging import publish_task, publish_event, trigger_n8n_webhook
@@ -29,6 +30,15 @@ logger = logging.getLogger('hrms')
 # Cache key constants
 EMPLOYEES_CACHE_KEY = 'employees:all'
 EMPLOYEES_CACHE_TTL = 60  # seconds
+
+
+def _get_current_datetime():
+    """Get current datetime localized to the configured TIME_ZONE (defaults to Asia/Kolkata)."""
+    try:
+        tz = ZoneInfo(getattr(settings, 'TIME_ZONE', 'Asia/Kolkata'))
+        return datetime.now(tz)
+    except Exception:
+        return datetime.now()
 
 # Configure Cloudinary
 cloudinary.config(
@@ -143,8 +153,8 @@ def create_employee(request):
 
     employee_data = validated.model_dump(exclude_none=True)
 
-    # Automatically record timestamp for creation Date & Time
-    now = datetime.now()
+    # Automatically record timestamp for creation Date & Time localized to IST/configured TIME_ZONE
+    now = _get_current_datetime()
     if 'created_at' not in employee_data or not employee_data.get('created_at'):
         employee_data['created_at'] = now.strftime('%Y-%m-%d %H:%M:%S')
     if 'created_date' not in employee_data or not employee_data.get('created_date'):

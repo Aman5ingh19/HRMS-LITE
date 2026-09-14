@@ -9,10 +9,12 @@ Attendance views — production-grade with:
 
 import logging
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from django.core.cache import cache
+from django.conf import settings
 
 from hrms.mongo import employees_collection, attendance_collection
 from employees.validators import AttendanceCheckInSchema, AttendanceCheckOutSchema, format_pydantic_errors
@@ -22,6 +24,15 @@ from hrms.messaging import publish_task, publish_event, trigger_n8n_webhook
 logger = logging.getLogger('hrms')
 
 ATTENDANCE_CACHE_TTL = 30  # seconds
+
+
+def _get_current_datetime():
+    """Get current datetime localized to the configured TIME_ZONE (defaults to Asia/Kolkata)."""
+    try:
+        tz = ZoneInfo(getattr(settings, 'TIME_ZONE', 'Asia/Kolkata'))
+        return datetime.now(tz)
+    except Exception:
+        return datetime.now()
 
 
 def _invalidate_attendance_cache():
@@ -141,8 +152,9 @@ def check_in(request):
     if not employee:
         return Response({'error': f'Employee {employee_id} not found'}, status=404)
 
-    today = datetime.now().strftime('%Y-%m-%d')
-    current_time = datetime.now().strftime('%H:%M:%S')
+    now = _get_current_datetime()
+    today = now.strftime('%Y-%m-%d')
+    current_time = now.strftime('%H:%M:%S')
 
     # Idempotent: already checked in today
     existing = attendance_collection.find_one({'employee_id': employee_id, 'date': today})
@@ -195,8 +207,9 @@ def check_out(request):
         )
 
     employee_id = validated.employee_id
-    today = datetime.now().strftime('%Y-%m-%d')
-    current_time = datetime.now().strftime('%H:%M:%S')
+    now = _get_current_datetime()
+    today = now.strftime('%Y-%m-%d')
+    current_time = now.strftime('%H:%M:%S')
 
     existing = attendance_collection.find_one({'employee_id': employee_id, 'date': today})
     if not existing:
